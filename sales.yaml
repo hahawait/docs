@@ -1,0 +1,539 @@
+openapi: 3.0.3
+info:
+  title: ClientAPI - Sales
+  version: 1.0.0
+servers:
+  - url: https://
+    description: Base URL for all API requests
+paths:
+  /sales/create:
+    post:
+      tags:
+        - Продажи
+      summary: Создать продажи
+      description: Функция создает продажи и отправляет их на анализ. При ошибках в файлах возвращается список ошибок.
+      operationId: create_sale_sales_create_post
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: channel_id
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: name
+          in: query
+          required: true
+          schema:
+            type: string
+            maxLength: 255
+        - name: budget
+          in: query
+          required: true
+          schema:
+            type: number
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/Body_create_sale_sales_create_post"
+      responses:
+        "200":
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewReportResponse"
+        "409":
+          description: Ошибка парсинга файла
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SalesExceptionSchema"
+        "415":
+          description: Неверный формат файла
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Ошибка авторизации
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+
+  /sales/analytic:
+    get:
+      tags:
+        - Продажи
+      summary: Получить аналитику продаж по каналу
+      description: Функция возвращает список аналитики продаж по каналу
+      operationId: get_analytics_sales_analytic_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: channel_id
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: order_by
+          in: query
+          required: false
+          schema:
+            type: string
+            default: created_at
+        - name: order_dir
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/OrderDir"
+            default: desc
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ReportDTO"
+        "422":
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+
+  /sales/analytic/report:
+    post:
+      tags:
+        - Продажи
+      summary: Получить аналитику по отчету
+      description: Функция возвращает информацию по аналитике
+      operationId: get_sales_analytic_sales_analytic_report_post
+      security:
+        - HTTPBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetReportSchema"
+      responses:
+        "200":
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReportRetrieveDTO"
+        "422":
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+
+  /sales/analytic/{channel_id}/{source_report_id}/sales:
+    get:
+      tags:
+        - Продажи
+      summary: Получить продажи по аналитике
+      description: Функция возвращает продажи по аналитике
+      operationId: get_sales_sales_analytic__channel_id__source_report_id__sales_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: channel_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: source_report_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: order_by
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: order_dir
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/OrderDir"
+            default: asc
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: status
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/SaleStatus"
+        - name: product
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: is_premium
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: start_date
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: end_date
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: is_null_invite_link
+          in: query
+          required: false
+          schema:
+            type: boolean
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+      responses:
+        "200":
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SalesResponse"
+        "422":
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+
+components:
+  securitySchemes:
+    HTTPBearer:
+      type: http
+      scheme: bearer
+
+  schemas:
+    Body_create_sale_sales_create_post:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+
+    NewReportResponse:
+      type: object
+      required:
+        - report_id
+        - status
+      properties:
+        report_id:
+          type: string
+        status:
+          type: string
+
+    SalesExceptionSchema:
+      type: object
+      required:
+        - errors_len
+        - errors
+      properties:
+        errors_len:
+          type: integer
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/SaleErrorDTO"
+
+    SaleErrorDTO:
+      type: object
+      required:
+        - filename
+        - row
+        - error
+      properties:
+        filename:
+          type: string
+        row:
+          type: integer
+        error:
+          type: string
+
+    Error:
+      type: object
+      required:
+        - detail
+      properties:
+        detail:
+          type: string
+
+    HTTPValidationError:
+      type: object
+      required:
+        - detail
+      properties:
+        detail:
+          type: array
+          items:
+            $ref: "#/components/schemas/ValidationError"
+
+    ValidationError:
+      type: object
+      required:
+        - loc
+        - msg
+        - type
+      properties:
+        loc:
+          type: array
+          items:
+            anyOf:
+              - type: string
+              - type: integer
+        msg:
+          type: string
+        type:
+          type: string
+
+    ReportDTO:
+      type: object
+      required:
+        - id
+        - name
+        - created_at
+        - channel_id
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        channel_id:
+          type: integer
+
+    GetReportSchema:
+      type: object
+      required:
+        - report_id
+      properties:
+        report_id:
+          type: string
+          format: uuid
+
+    ReportRetrieveDTO:
+      type: object
+      required:
+        - id
+        - name
+        - created_at
+        - channel_id
+        - status
+        - budget
+        - profit
+        - creator_id
+        - error_message
+        - updated_at
+        - subs
+        - sales
+        - leads
+        - funnel
+        - avg_sale
+        - avg_funnel
+        - avg_lead
+        - premium_percent
+        - username_percent
+        - source_reports
+        - romi
+        - cpf
+        - cpl
+        - cac
+        - cpc
+        - cr_leads
+        - cr_sales
+        - cr_funnel
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        channel_id:
+          type: integer
+        status:
+          type: string
+        budget:
+          type: number
+        profit:
+          type: number
+        creator_id:
+          type: integer
+        error_message:
+          type: string
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+        subs:
+          type: integer
+        sales:
+          type: integer
+        leads:
+          type: integer
+        funnel:
+          type: integer
+        avg_sale:
+          type: object
+          nullable: true
+        avg_funnel:
+          type: object
+          nullable: true
+        avg_lead:
+          type: object
+          nullable: true
+        premium_percent:
+          type: number
+        username_percent:
+          type: number
+        source_reports:
+          type: array
+          items:
+            type: object
+        romi:
+          type: number
+        cpf:
+          type: number
+        cpl:
+          type: number
+        cac:
+          type: number
+        cpc:
+          type: number
+        cr_leads:
+          type: number
+        cr_sales:
+          type: number
+        cr_funnel:
+          type: number
+
+    OrderDir:
+      type: string
+      enum:
+        - asc
+        - desc
+
+    SaleStatus:
+      type: string
+      enum:
+        - lead
+        - sale
+        - funnel
+
+    SalesResponse:
+      type: object
+      required:
+        - user_id
+        - name
+        - product
+        - purchase_amount
+        - username
+        - photo_url
+        - is_premium
+        - phone_number
+        - birthdate
+        - status
+        - sub_date
+        - unsub_date
+        - action_date
+        - action_period
+      properties:
+        user_id:
+          type: integer
+        name:
+          type: string
+          nullable: true
+        product:
+          type: string
+          nullable: true
+        purchase_amount:
+          type: number
+        username:
+          type: string
+          nullable: true
+        photo_url:
+          type: string
+          nullable: true
+        is_premium:
+          type: boolean
+        phone_number:
+          type: string
+          nullable: true
+        birthdate:
+          type: string
+          nullable: true
+        status:
+          $ref: "#/components/schemas/SaleStatus"
+        sub_date:
+          type: string
+          format: date-time
+          nullable: true
+        unsub_date:
+          type: string
+          format: date-time
+          nullable: true
+        action_date:
+          type: string
+          format: date-time
+          nullable: true
+        action_period:
+          type: object
+          nullable: true

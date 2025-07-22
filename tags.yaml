@@ -1,0 +1,341 @@
+openapi: 3.0.3
+info:
+  title: ClientAPI - Invite Links (Tags)
+  version: 1.0.0
+servers:
+  - url: https://
+    description: Base URL for all API requests
+paths:
+  /tags:
+    get:
+      tags:
+        - tags
+      summary: Получить список тегов
+      description: Получить все теги с возможностью фильтрации и пагинации
+      operationId: get_tags_tags_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: channel_id
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+            nullable: true
+        - name: type_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+            nullable: true
+        - name: ordered_fields
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/TagsOrder"
+            default: ["-created_at"]
+      responses:
+        "200":
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AllTagsResponseDTO"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorSchema"
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+    post:
+      tags:
+        - tags
+      summary: Создать тег
+      description: Создать новый тег для канала
+      operationId: create_tag_tags_post
+      security:
+        - HTTPBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TagCreateDTO"
+      responses:
+        "201":
+          description: Успешно создано
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TagResponseDTO"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorSchema"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorSchema"
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+
+  /tags/types:
+    get:
+      tags:
+        - tags
+      summary: Получить типы тегов
+      description: Получить все типы тегов
+      operationId: get_tag_types_tags_types_get
+      security:
+        - HTTPBearer: []
+      responses:
+        "200":
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TagTypeDTO"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorSchema"
+
+  /tags/{tag_id}:
+    get:
+      tags:
+        - tags
+      summary: Получить тег по ID
+      description: Получить подробную информацию о теге по его идентификатору
+      operationId: get_tag_tags__tag_id__get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: tag_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TagResponseDTO"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorSchema"
+        "404":
+          description: Tag not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorSchema"
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+
+components:
+  securitySchemes:
+    HTTPBearer:
+      type: http
+      scheme: bearer
+
+  schemas:
+    TagCreateDTO:
+      type: object
+      required:
+        - channel_id
+        - name
+        - color
+        - tag_type_id
+      properties:
+        channel_id:
+          type: integer
+        name:
+          type: string
+        color:
+          type: string
+        tag_type_id:
+          type: string
+          format: uuid
+
+    TagResponseDTO:
+      type: object
+      required:
+        - id
+        - name
+        - color
+        - type
+        - created_at
+        - channel_id
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        color:
+          type: string
+        type:
+          $ref: "#/components/schemas/TagTypeDTO"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+        channel_id:
+          type: integer
+        links:
+          type: array
+          items:
+            $ref: "#/components/schemas/InviteLinkInTagDTO"
+
+    TagTypeDTO:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+
+    AllTagsResponseDTO:
+      type: object
+      required:
+        - page
+        - limit
+        - total
+        - items
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/TagResponseDTO"
+
+    InviteLinkInTagDTO:
+      type: object
+      required:
+        - id
+        - invite_link
+        - created_at
+        - budget
+        - is_bot_created
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          nullable: true
+        invite_link:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        budget:
+          type: number
+        creator_id:
+          type: integer
+          nullable: true
+        is_bot_created:
+          type: boolean
+
+    TagsOrder:
+      type: string
+      enum:
+        - name
+        - created_at
+        - -name
+        - -created_at
+
+    ErrorSchema:
+      type: object
+      required:
+        - detail
+      properties:
+        detail:
+          type: string
+
+    HTTPValidationError:
+      type: object
+      required:
+        - detail
+      properties:
+        detail:
+          type: array
+          items:
+            $ref: "#/components/schemas/ValidationError"
+
+    ValidationError:
+      type: object
+      required:
+        - loc
+        - msg
+        - type
+      properties:
+        loc:
+          type: array
+          items:
+            anyOf:
+              - type: string
+              - type: integer
+        msg:
+          type: string
+        type:
+          type: string

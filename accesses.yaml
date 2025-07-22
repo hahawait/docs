@@ -1,0 +1,143 @@
+openapi: 3.0.3
+info:
+  title: ACCESS_SERVICE
+  description: ACCESS_SERVICE
+  version: 1.0.0
+servers:
+  - url: https://
+    description: Base URL for all API requests
+paths:
+  /accesses:
+    get:
+      tags:
+      - Доступы
+      summary: Get Accesses
+      description: Получение списка доступов
+      operationId: get_accesses_accesses_get
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: channel_ids
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: integer
+          description: Фильтр по списку каналов
+          default: []
+          title: Channel Ids
+        description: Фильтр по списку каналов
+      - name: tariff_name
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Фильтр по названию тарифа
+          title: Tariff Name
+        description: Фильтр по названию тарифа
+      - name: legal_entity_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Фильтр по платежному аккаунту
+          title: Legal Entity Id
+        description: Фильтр по платежному аккаунту
+      - name: only_current
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Фильтр по текущим доступам
+          title: Only Current
+        description: Фильтр по текущим доступам
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccessTariffDTO'
+                title: Response Get Accesses Accesses Get
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorSchema'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  securitySchemes:
+    HTTPBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ErrorSchema:
+      properties:
+        detail:
+          type: string
+          title: Detail
+      type: object
+      required:
+      - detail
+      title: ErrorSchema
+    AccessTariffDTO:
+      properties:
+        id:
+          type: integer
+          title: Id
+        channel_id:
+          type: integer
+          title: Channel Id
+        tariff:
+          $ref: '#/components/schemas/TariffDTO'
+        additional_users:
+          type: integer
+          title: Additional Users
+        sub_end_date:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Sub End Date
+        sub_start_date:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Sub Start Date
+        legal_entity_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Legal Entity Id
+      type: object
+      required:
+      - id
+      - channel_id
+      - tariff
+      - additional_users
+      title: AccessTariffDTO

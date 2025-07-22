@@ -1,0 +1,165 @@
+openapi: 3.0.3
+info:
+  title: ClientAPI - Auth Endpoints
+  version: 1.0.0
+servers:
+  - url: https://
+    description: Base URL for all API requests
+paths:
+  /auth/login:
+    post:
+      tags:
+        - Аутентификация
+      summary: Вход в систему
+      description: Возвращает токены
+      operationId: login_auth_login_post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginDTO"
+      responses:
+        "200":
+          description: Пользователь успешно авторизован
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenSchema"
+        "404":
+          description: Пользователь не найден
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorSchema"
+        "409":
+          description: Некорректный пароль
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorSchema"
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+  /auth/refresh:
+    post:
+      tags:
+        - Аутентификация
+      summary: Рефреш токенов
+      description: Возвращает новые токены
+      operationId: refresh_tokens_auth_refresh_post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshTokenDTO"
+      responses:
+        "200":
+          description: Пользователь успешно авторизован
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenSchema"
+        "401":
+          description: Некорректный токен/истек срок действия токена
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorSchema"
+        "404":
+          description: Пользователь не найден
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorSchema"
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+
+components:
+  schemas:
+    LoginDTO:
+      type: object
+      required:
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+        password:
+          type: string
+      title: LoginDTO
+
+    TokenSchema:
+      type: object
+      required:
+        - access_token
+        - refresh_token
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+        token_type:
+          type: string
+          default: Bearer
+      title: TokenSchema
+
+    ErrorSchema:
+      type: object
+      required:
+        - detail
+      properties:
+        detail:
+          type: string
+      title: ErrorSchema
+
+    HTTPValidationError:
+      type: object
+      required:
+        - detail
+      properties:
+        detail:
+          type: array
+          items:
+            $ref: "#/components/schemas/ValidationError"
+      title: HTTPValidationError
+
+    ValidationError:
+      type: object
+      required:
+        - loc
+        - msg
+        - type
+      properties:
+        loc:
+          type: array
+          items:
+            anyOf:
+              - type: string
+              - type: integer
+        msg:
+          type: string
+        type:
+          type: string
+      title: ValidationError
+
+    RefreshTokenDTO:
+      type: object
+      required:
+        - refresh_token
+      properties:
+        refresh_token:
+          type: string
+      title: RefreshTokenDTO
