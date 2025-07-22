@@ -88,15 +88,26 @@ components:
       type: http
       scheme: bearer
   schemas:
-    ErrorSchema:
+    LoginDTO:
       properties:
-        detail:
+        email:
+          anyOf:
+          - type: string
+            format: email
+          - type: 'null'
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        password:
           type: string
-          title: Detail
+          title: Password
       type: object
       required:
-      - detail
-      title: ErrorSchema
+      - password
+      title: LoginDTO
     HTTPValidationError:
       properties:
         detail:
@@ -106,23 +117,6 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
-    TokenSchema:
-      properties:
-        access_token:
-          type: string
-          title: Access Token
-        refresh_token:
-          type: string
-          title: Refresh Token
-        token_type:
-          type: string
-          title: Token Type
-          default: Bearer
-      type: object
-      required:
-      - access_token
-      - refresh_token
-      title: TokenSchema
     ValidationError:
       properties:
         loc:
@@ -144,3 +138,38 @@ components:
       - msg
       - type
       title: ValidationError
+    ErrorSchema:
+      properties:
+        detail:
+          type: string
+          title: Detail
+      type: object
+      required:
+      - detail
+      title: ErrorSchema
+    RefreshTokenDTO:
+      properties:
+        refresh_token:
+          type: string
+          title: Refresh Token
+      type: object
+      required:
+      - refresh_token
+      title: RefreshTokenDTO
+    TokenSchema:
+      properties:
+        access_token:
+          type: string
+          title: Access Token
+        refresh_token:
+          type: string
+          title: Refresh Token
+        token_type:
+          type: string
+          title: Token Type
+          default: Bearer
+      type: object
+      required:
+      - access_token
+      - refresh_token
+      title: TokenSchema
