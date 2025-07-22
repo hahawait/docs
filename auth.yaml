@@ -14,152 +14,133 @@ paths:
       description: Возвращает токены
       operationId: login_auth_login_post
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/LoginDTO"
+              $ref: '#/components/schemas/LoginDTO'
+        required: true
       responses:
-        "200":
+        '200':
           description: Пользователь успешно авторизован
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TokenSchema"
-        "404":
-          description: Пользователь не найден
+                $ref: '#/components/schemas/TokenSchema'
+        '404':
+          description: Пользователь не найден
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorSchema"
-        "409":
+                $ref: '#/components/schemas/ErrorSchema'
+        '409':
           description: Некорректный пароль
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorSchema"
-        "422":
+                $ref: '#/components/schemas/ErrorSchema'
+        '422':
           description: Validation Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/HTTPValidationError"
+                $ref: '#/components/schemas/HTTPValidationError'
   /auth/refresh:
     post:
       tags:
-        - Аутентификация
+      - Аутентификация
       summary: Рефреш токенов
-      description: Возвращает новые токены
+      description: Возвращает токены
       operationId: refresh_tokens_auth_refresh_post
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/RefreshTokenDTO"
+              $ref: '#/components/schemas/RefreshTokenDTO'
+        required: true
       responses:
-        "200":
+        '200':
           description: Пользователь успешно авторизован
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TokenSchema"
-        "401":
+                $ref: '#/components/schemas/TokenSchema'
+        '401':
           description: Некорректный токен/истек срок действия токена
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorSchema"
-        "404":
-          description: Пользователь не найден
+                $ref: '#/components/schemas/ErrorSchema'
+        '404':
+          description: Пользователь не найден
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorSchema"
-        "422":
+                $ref: '#/components/schemas/ErrorSchema'
+        '422':
           description: Validation Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/HTTPValidationError"
-
+                $ref: '#/components/schemas/HTTPValidationError'
 components:
+  securitySchemes:
+    HTTPBearer:
+      type: http
+      scheme: bearer
   schemas:
-    LoginDTO:
-      type: object
-      required:
-        - password
+    ErrorSchema:
       properties:
-        email:
+        detail:
           type: string
-          format: email
-          nullable: true
-        phone:
-          type: string
-          nullable: true
-        password:
-          type: string
-      title: LoginDTO
-
-    TokenSchema:
+          title: Detail
       type: object
       required:
-        - access_token
-        - refresh_token
+      - detail
+      title: ErrorSchema
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    TokenSchema:
       properties:
         access_token:
           type: string
+          title: Access Token
         refresh_token:
           type: string
+          title: Refresh Token
         token_type:
           type: string
+          title: Token Type
           default: Bearer
+      type: object
+      required:
+      - access_token
+      - refresh_token
       title: TokenSchema
-
-    ErrorSchema:
-      type: object
-      required:
-        - detail
-      properties:
-        detail:
-          type: string
-      title: ErrorSchema
-
-    HTTPValidationError:
-      type: object
-      required:
-        - detail
-      properties:
-        detail:
-          type: array
-          items:
-            $ref: "#/components/schemas/ValidationError"
-      title: HTTPValidationError
-
     ValidationError:
-      type: object
-      required:
-        - loc
-        - msg
-        - type
       properties:
         loc:
-          type: array
           items:
             anyOf:
-              - type: string
-              - type: integer
+            - type: string
+            - type: integer
+          type: array
+          title: Location
         msg:
           type: string
+          title: Message
         type:
           type: string
-      title: ValidationError
-
-    RefreshTokenDTO:
+          title: Error Type
       type: object
       required:
-        - refresh_token
-      properties:
-        refresh_token:
-          type: string
-      title: RefreshTokenDTO
+      - loc
+      - msg
+      - type
+      title: ValidationError
