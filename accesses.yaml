@@ -86,24 +86,6 @@ components:
       type: http
       scheme: bearer
   schemas:
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    ErrorSchema:
-      properties:
-        detail:
-          type: string
-          title: Detail
-      type: object
-      required:
-      - detail
-      title: ErrorSchema
     AccessTariffDTO:
       properties:
         id:
@@ -141,3 +123,107 @@ components:
       - tariff
       - additional_users
       title: AccessTariffDTO
+    ErrorSchema:
+      properties:
+        detail:
+          type: string
+          title: Detail
+      type: object
+      required:
+      - detail
+      title: ErrorSchema
+    MetricDTO:
+      properties:
+        id:
+          type: integer
+          title: Id
+        name:
+          type: string
+          title: Name
+        amount:
+          type: integer
+          title: Amount
+      type: object
+      required:
+      - id
+      - name
+      - amount
+      title: MetricDTO
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    TariffDTO:
+      properties:
+        id:
+          type: integer
+          title: Id
+        tag:
+          anyOf:
+          - $ref: '#/components/schemas/TagEnum'
+          - type: 'null'
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        is_default:
+          type: boolean
+          title: Is Default
+          default: false
+        is_available:
+          type: boolean
+          title: Is Available
+          default: false
+        metrics:
+          items:
+            $ref: '#/components/schemas/MetricDTO'
+          type: array
+          title: Metrics
+      type: object
+      required:
+      - id
+      - name
+      - metrics
+      title: TariffDTO
+    TagEnum:
+      type: string
+      enum:
+      - BASIC
+      - GROWTH
+      - PREMIUM
+      - UNLIMIT
+      - TRIAL
+      - START
+      - DELETED
+      - ADDITIONAL_USERS
+      title: TagEnum
