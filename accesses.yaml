@@ -48,16 +48,6 @@ paths:
           description: Фильтр по платежному аккаунту
           title: Legal Entity Id
         description: Фильтр по платежному аккаунту
-      - name: only_current
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          description: Фильтр по текущим доступам
-          title: Only Current
-        description: Фильтр по текущим доступам
       responses:
         '200':
           description: Successful Response
