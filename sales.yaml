@@ -315,6 +315,12 @@ components:
       type: http
       scheme: bearer
   schemas:
+    OrderDir:
+      type: string
+      title: OrderDir
+      enum:
+        - asc
+        - desc
     HTTPValidationError:
       properties:
         detail:
