@@ -1,10 +1,9 @@
 openapi: 3.0.3
 info:
-  title: ACCESS_SERVICE
-  description: ACCESS_SERVICE
+  title: ClientAPI - Accesses
   version: 1.0.0
 servers:
-  - url: https://
+  - url: https://clientapi-gateway.smitstat.ru
     description: Base URL for all API requests
 paths:
   /accesses:

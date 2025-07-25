@@ -19,25 +19,26 @@ title: Доступы (accesses)
 ```json
 [
   {
-    "id": 1,
-    "channel_id": 123,
+    "id": 0,
+    "channel_id": 0,
     "tariff": {
-      "id": 10,
+      "id": 0,
       "tag": "BASIC",
-      "name": "Базовый",
-      "description": "Описание тарифа",
+      "name": "string",
+      "description": "string",
       "is_default": false,
-      "is_available": true,
+      "is_available": false,
       "metrics": [
         {
-          "id": 1,
-          "name": "Пользователи",
-          "amount": 100
+          "id": 0,
+          "name": "string",
+          "amount": 0
         }
       ]
     },
-    "sub_start_date": "2024-01-01T00:00:00Z",
-    "sub_end_date": "2024-01-01T00:00:00Z",
+    "additional_users": 0,
+    "sub_end_date": "2025-07-22T07:59:57.734Z",
+    "sub_start_date": "2025-07-22T07:59:57.734Z",
     "legal_entity_id": 0
   }
 ]

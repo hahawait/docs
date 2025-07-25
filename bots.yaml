@@ -1,0 +1,135 @@
+openapi: 3.0.3
+info:
+  title: ClientAPI - Bots Endpoints
+  description: '"Bot''s service"'
+  version: 1.0.0
+servers:
+  - url: https://clientapi-gateway.smitstat.ru
+    description: Base URL for all API requests
+paths:
+  /bots/channels/{channel_id}:
+    get:
+      tags:
+      - bots
+      summary: Get Connected Bots
+      description: Получение подключенных к каналу ботов
+      operationId: get_connected_bots_bots_channels__channel_id__get
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: channel_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Channel Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConnectedBotDTO'
+                title: Response Get Connected Bots Bots Channels  Channel Id  Get
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorSchema'
+        '404':
+          description: Bot logs not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorSchema'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  securitySchemes:
+    HTTPBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    ErrorSchema:
+      properties:
+        detail:
+          type: string
+          title: Detail
+      type: object
+      required:
+      - detail
+      title: ErrorSchema
+    ConnectedBotDTO:
+      properties:
+        id:
+          type: integer
+          title: Id
+        username:
+          type: string
+          title: Username
+        fullname:
+          type: string
+          title: Fullname
+        service_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        status:
+          type: boolean
+          title: Status
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+      type: object
+      required:
+      - id
+      - username
+      - fullname
+      - status
+      title: ConnectedBotDTO
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError

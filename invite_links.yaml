@@ -3,7 +3,7 @@ info:
   title: ClientAPI - Invite Links Endpoints
   version: 1.0.0
 servers:
-  - url: https://
+  - url: https://clientapi-gateway.smitstat.ru
     description: Base URL for all API requests
 paths:
   /invite_links/{invite_link_id}:
